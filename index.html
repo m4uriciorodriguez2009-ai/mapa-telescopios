@@ -1,14 +1,85 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa de Telescopios</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #101827;
+            color: white;
+            padding: 25px;
+        }
+        h1 { color: #60a5fa; }
+        .telescopio {
+            background: #1e293b;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>Mapa de Telescopios</h1>
+    <h1>🔭 Mapa de Telescopios</h1>
     <p>Club de Ciencias - Noche de Astronomía</p>
+
+    <h2>Telescopios registrados</h2>
+    <div id="lista">Cargando telescopios...</div>
+
+    <script>
+        const SUPABASE_URL = "TU_URL_DE_SUPABASE";
+        const SUPABASE_KEY = "TU_CLAVE_PUBLICA";
+
+        const db = supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+        async function cargarTelescopios() {
+            const lista = document.getElementById("lista");
+
+            const { data, error } = await db
+                .from("telescopios")
+                .select("*");
+
+            if (error) {
+                lista.textContent = "Error al cargar: " + error.message;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                lista.textContent = "No hay telescopios registrados.";
+                return;
+            }
+
+            lista.innerHTML = "";
+
+            data.forEach(t => {
+                const tarjeta = document.createElement("div");
+                tarjeta.className = "telescopio";
+
+                const titulo = document.createElement("h3");
+                titulo.textContent = "🔭 " + t.nombre;
+
+                const detalles = document.createElement("p");
+                detalles.textContent =
+                    "Código: " + t.codigo +
+                    " | Latitud: " + t.latitud +
+                    " | Longitud: " + t.longitud +
+                    " | Hora: " + t.hora_inicio +
+                    " | Objeto: " + t.objeto_observar;
+
+                tarjeta.append(titulo, detalles);
+                lista.appendChild(tarjeta);
+            });
+        }
+
+        cargarTelescopios();
+    </script>
 
 </body>
 </html>
